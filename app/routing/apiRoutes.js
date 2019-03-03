@@ -1,52 +1,48 @@
 var friends = require("../data/friends.js");
 
-module.exports = function(app) {
+module.exports = function (app) {
 
-    app.get("/api/friends", function(req, res) {
+    app.get("/api/friends", function (req, res) {
         res.json(friends);
     });
-    app.post("/api/friends", function (req,res) {
+    app.post("/api/friends", function (req, res) {
+        var userData = req.body;
+        var userScores = userData.scores;
 
         var bestMatch = {
             name: "",
             photo: "",
-            difference: 1000
+            difference: 10000
         };
 
-        var userData= req.body;
-        var userScores = userData.scores;
-        var userName = userData.name;
-        var userPhoto = userData.photo;
+        for (var i = 0; i < friends.length; i++) {
 
-        var totalDifference = 0;
-       
-        for (var i = 0; i < friends.length -1; i++) {
-            console.log(friends[i].name);
-           
-            totalDifference = 0;
+            var diff = 0;
 
-            for (var j = 0; j < friends[i].scores[j]; j++) {
+            for (var j = 0; j < userScores.length; j++) {
 
-                totalDifference += Math.abs(parseInt(userScores[j]) - parseInt(friends[i].scores[j]));
+                diff += Math.abs(parseInt(friends[i].scores[j]) - parseInt(userScores[j]));
+            }    
+                if (diff < bestMatch.difference) {
+                    // console.log("Closet match found = " + diff);
+                    // console.log("Friend Name is " + friends[i].name);
+                    // console.log("Friend image = " + friends[i].photo);
 
-                if (totalDifference <= bestMatch.difference) {
+                    bestMatch.difference = diff;
                     bestMatch.name = friends[i].name;
                     bestMatch.photo = friends[i].photo;
-                    bestMatch.difference = totalDifference;
 
-                    console.log("bestMatch.name: " + bestMatch.name);
-                    console.log("bestMatch.difference: " + bestMatch.difference );
                 }
-            }
             
 
-            console.log("bestMatch" + bestMatch.name);
-            console.log("bestMatch.photo: " + bestMatch.photo);
+
+            // console.log("bestMatch" + bestMatch.name);
+            // console.log("bestMatch.photo: " + bestMatch.photo);
 
 
         }
 
-         friends.push(userData);
+        friends.push(userData);
         res.json(bestMatch);
 
     });
